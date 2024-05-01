@@ -22,6 +22,17 @@ SimpleEQAudioProcessor::SimpleEQAudioProcessor()
                        )
 #endif
 {
+    lowCutoffFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(LOW_CUTOFF));
+    highCutoffFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(HIGH_CUTOFF));
+    lowCutoffGain = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(LOW_GAIN));
+    highCutoffGain = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(HIGH_GAIN));
+    peakFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(PEAK_FREQ));
+
+    jassert(lowCutoffFreq != nullptr);
+    jassert(highCutoffFreq != nullptr);
+    jassert(lowCutoffGain != nullptr);
+    jassert(highCutoffGain != nullptr);
+    jassert(peakFreq != nullptr);
 }
 
 SimpleEQAudioProcessor::~SimpleEQAudioProcessor()
@@ -95,6 +106,10 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+    juce::dsp::ProcessSpec spec{ sampleRate, samplesPerBlock, 1 };
+    leftChain.prepare(spec);
+    rightChain.prepare(spec);
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -144,18 +159,16 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    juce::dsp::AudioBlock<float> block(buffer);
 
-        // ..do something to the data...
-    }
+    auto leftBlock = block.getSingleChannelBlock(0);
+    auto rightBlock = block.getSingleChannelBlock(1);
+
+    juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+
+    leftChain.process(leftContext);
+    rightChain.process(rightContext);
 }
 
 //==============================================================================
@@ -166,7 +179,7 @@ bool SimpleEQAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
-    return new SimpleEQAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -175,12 +188,62 @@ void SimpleEQAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+
+    juce::MemoryOutputStream mos(destData, true);
+    apvts.state.writeToStream(mos);
 }
 
 void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+
+    if (tree.isValid())
+    {
+        apvts.replaceState(tree);
+    }
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout()
+{
+    APVTS::ParameterLayout layout;
+
+    auto gainChoices = std::vector<double>{ 12, 24, 36, 48 };
+    juce::StringArray sa;
+    for (auto choice : gainChoices)
+    {
+        sa.add(juce::String(choice, 1));
+    }
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        LOW_CUTOFF, 
+        LOW_CUTOFF, 
+        juce::NormalisableRange<float>(20, 20000, 1, 0.4), 
+        20));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        HIGH_CUTOFF,
+        HIGH_CUTOFF,
+        juce::NormalisableRange<float>(20, 20000, 1, 1),
+        20000));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        LOW_GAIN,
+        LOW_GAIN,
+        sa,
+        0));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        HIGH_GAIN,
+        HIGH_GAIN,
+        sa,
+        0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        PEAK_FREQ,
+        PEAK_FREQ,
+        juce::NormalisableRange<float>(20, 20000, 1, 1),
+        3000));
+
+    return layout;
 }
 
 //==============================================================================
