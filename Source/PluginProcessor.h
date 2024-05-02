@@ -52,28 +52,40 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+
     using APVTS = juce::AudioProcessorValueTreeState;
     static APVTS::ParameterLayout createParameterLayout();
     APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
 
 private:
-    inline static const juce::String LOW_CUTOFF = "Low Cutoff";
-    inline static const juce::String HIGH_CUTOFF = "High Cutoff";
+    inline static const juce::String LOW_CUT = "Low Cut";
+    inline static const juce::String HIGH_CUT = "High Cut";
     inline static const juce::String LOW_GAIN = "Low Gain";
     inline static const juce::String HIGH_GAIN = "High Gain";
     inline static const juce::String PEAK_FREQ = "Peak Freq";
+    inline static const juce::String PEAK_GAIN = "Peak Gain";
+    inline static const juce::String PEAK_QUALITY = "Peak Quality";
     
-    juce::AudioParameterFloat* lowCutoffFreq{ nullptr };
-    juce::AudioParameterFloat* highCutoffFreq{ nullptr };
-    juce::AudioParameterChoice* lowCutoffGain{ nullptr };
-    juce::AudioParameterChoice* highCutoffGain{ nullptr };
+    juce::AudioParameterFloat* lowCutFreq{ nullptr };
+    juce::AudioParameterFloat* highCutFreq{ nullptr };
+    juce::AudioParameterChoice* lowCutGain{ nullptr };
+    juce::AudioParameterChoice* highCutGain{ nullptr };
     juce::AudioParameterFloat* peakFreq{ nullptr };
+    juce::AudioParameterFloat* peakGain{ nullptr };
+    juce::AudioParameterFloat* peakQuality{ nullptr };
 
     using Filter = juce::dsp::IIR::Filter<float>;
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
     using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
     MonoChain leftChain, rightChain;
+
+    enum ChainPositions
+    {
+        LOW_CUT_FILTER,
+        PEAK_FILTER,
+        HIGH_CUT_FILTER
+    };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)

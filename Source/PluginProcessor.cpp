@@ -22,17 +22,21 @@ SimpleEQAudioProcessor::SimpleEQAudioProcessor()
                        )
 #endif
 {
-    lowCutoffFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(LOW_CUTOFF));
-    highCutoffFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(HIGH_CUTOFF));
-    lowCutoffGain = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(LOW_GAIN));
-    highCutoffGain = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(HIGH_GAIN));
+    lowCutFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(LOW_CUT));
+    highCutFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(HIGH_CUT));
+    lowCutGain = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(LOW_GAIN));
+    highCutGain = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(HIGH_GAIN));
     peakFreq = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(PEAK_FREQ));
+    peakGain = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(PEAK_GAIN));
+    peakQuality = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(PEAK_QUALITY));
 
-    jassert(lowCutoffFreq != nullptr);
-    jassert(highCutoffFreq != nullptr);
-    jassert(lowCutoffGain != nullptr);
-    jassert(highCutoffGain != nullptr);
+    jassert(lowCutFreq != nullptr);
+    jassert(highCutFreq != nullptr);
+    jassert(lowCutGain != nullptr);
+    jassert(highCutGain != nullptr);
     jassert(peakFreq != nullptr);
+    jassert(peakGain != nullptr);
+    jassert(peakQuality != nullptr);
 }
 
 SimpleEQAudioProcessor::~SimpleEQAudioProcessor()
@@ -159,6 +163,15 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(
+        getSampleRate(), 
+        peakFreq->get(), 
+        peakQuality->get(), 
+        juce::Decibels::decibelsToGain(peakGain->get()));
+
+    *leftChain.get<ChainPositions::PEAK_FILTER>().coefficients = *peakCoefficients;
+    *rightChain.get<ChainPositions::PEAK_FILTER>().coefficients = *peakCoefficients;
+
     juce::dsp::AudioBlock<float> block(buffer);
 
     auto leftBlock = block.getSingleChannelBlock(0);
@@ -218,30 +231,40 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     }
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        LOW_CUTOFF, 
-        LOW_CUTOFF, 
-        juce::NormalisableRange<float>(20, 20000, 1, 0.4), 
+        LOW_CUT, 
+        LOW_CUT, 
+        juce::NormalisableRange<float>(20, 20000, 1, 0.25), 
         20));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        LOW_GAIN,
+        LOW_GAIN,
+        sa,
+        1));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        HIGH_CUTOFF,
-        HIGH_CUTOFF,
-        juce::NormalisableRange<float>(20, 20000, 1, 1),
+        HIGH_CUT,
+        HIGH_CUT,
+        juce::NormalisableRange<float>(20, 20000, 1, 0.25),
         20000));
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        LOW_GAIN,
-        LOW_GAIN,
-        sa,
-        0));
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
         HIGH_GAIN,
         HIGH_GAIN,
         sa,
-        0));
+        1));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         PEAK_FREQ,
         PEAK_FREQ,
-        juce::NormalisableRange<float>(20, 20000, 1, 1),
+        juce::NormalisableRange<float>(20, 20000, 1, 0.25),
         3000));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        PEAK_GAIN,
+        PEAK_GAIN,
+        juce::NormalisableRange<float>(-24, 24, 0.5, 1),
+        0));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        PEAK_QUALITY,
+        PEAK_QUALITY,
+        juce::NormalisableRange<float>(0.1, 10, 0.05, 0.33),
+        1));
 
     return layout;
 }
