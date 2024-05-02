@@ -53,12 +53,6 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    using APVTS = juce::AudioProcessorValueTreeState;
-    static APVTS::ParameterLayout createParameterLayout();
-    APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
-
-
-private:
     inline static const juce::String LOW_CUT = "Low Cut";
     inline static const juce::String HIGH_CUT = "High Cut";
     inline static const juce::String LOW_GAIN = "Low Gain";
@@ -66,7 +60,12 @@ private:
     inline static const juce::String PEAK_FREQ = "Peak Freq";
     inline static const juce::String PEAK_GAIN = "Peak Gain";
     inline static const juce::String PEAK_QUALITY = "Peak Quality";
-    
+
+    using APVTS = juce::AudioProcessorValueTreeState;
+    static APVTS::ParameterLayout createParameterLayout();
+    APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
+
+private:
     juce::AudioParameterFloat* lowCutFreq{ nullptr };
     juce::AudioParameterFloat* highCutFreq{ nullptr };
     juce::AudioParameterChoice* lowCutGain{ nullptr };
