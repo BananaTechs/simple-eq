@@ -87,6 +87,19 @@ private:
         HIGH_CUT_FILTER
     };
 
+    void updatePeakFilter();
+    void updateCutFilters();
+    void setCutFilterParams(CutFilter& filterChain,
+                         juce::ReferenceCountedArray<juce::dsp::IIR::Coefficients<float>>& cutCoefficients,
+                         int numFilters);
+
+    template<int Index, typename CoefficientType>
+    void updateAndEnableFilter(CutFilter& filterChain, CoefficientType& coefficients)
+    {
+        *filterChain.get<Index>().coefficients = *coefficients[Index];
+        filterChain.setBypassed<Index>(false);
+    }
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
