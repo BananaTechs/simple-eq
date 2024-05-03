@@ -4,6 +4,10 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="Banana Technologies">
   <MAINGROUP id="DtL6iq" name="SimpleEQ">
     <GROUP id="{F27174E5-40CC-798A-9C44-3AB13C27FB7D}" name="Source">
+      <FILE id="ICdjMw" name="ResponseCurveComponent.cpp" compile="1" resource="0"
+            file="Source/ResponseCurveComponent.cpp"/>
+      <FILE id="doX1rs" name="ResponseCurveComponent.h" compile="0" resource="0"
+            file="Source/ResponseCurveComponent.h"/>
       <FILE id="i6JRdN" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="cUfnTC" name="PluginProcessor.h" compile="0" resource="0"
