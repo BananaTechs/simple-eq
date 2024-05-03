@@ -10,13 +10,13 @@
 
 #include <JuceHeader.h>
 
-const juce::String LOW_CUT = "Low Cut";
-const juce::String HIGH_CUT = "High Cut";
-const juce::String LOW_GAIN = "Low Gain";
-const juce::String HIGH_GAIN = "High Gain";
-const juce::String PEAK_FREQ = "Peak Freq";
-const juce::String PEAK_GAIN = "Peak Gain";
-const juce::String PEAK_QUALITY = "Peak Quality";
+inline const juce::String LOW_CUT = "Low Cut";
+inline const juce::String HIGH_CUT = "High Cut";
+inline const juce::String LOW_GAIN = "Low Gain";
+inline const juce::String HIGH_GAIN = "High Gain";
+inline const juce::String PEAK_FREQ = "Peak Freq";
+inline const juce::String PEAK_GAIN = "Peak Gain";
+inline const juce::String PEAK_QUALITY = "Peak Quality";
 
 using Filter = juce::dsp::IIR::Filter<float>;
 using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
@@ -76,6 +76,11 @@ public:
     static APVTS::ParameterLayout createParameterLayout();
     APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
+    void updateMonoChain(MonoChain& monoChain);
+    void updateMonoChains(std::vector<MonoChain*>& monoChains);
+    void updatePeakFilter(std::vector<MonoChain*>& monoChains);
+    void updateCutFilters(std::vector<MonoChain*>& monoChains);
+
 private:
     juce::AudioParameterFloat* lowCutFreq{ nullptr };
     juce::AudioParameterFloat* highCutFreq{ nullptr };
@@ -87,8 +92,6 @@ private:
 
     MonoChain leftChain, rightChain;
 
-    void updatePeakFilter();
-    void updateCutFilters();
     void setCutFilterParams(CutFilter& filterChain,
                          juce::ReferenceCountedArray<juce::dsp::IIR::Coefficients<float>>& cutCoefficients,
                          int numFilters);
