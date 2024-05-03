@@ -10,6 +10,25 @@
 
 #include <JuceHeader.h>
 
+const juce::String LOW_CUT = "Low Cut";
+const juce::String HIGH_CUT = "High Cut";
+const juce::String LOW_GAIN = "Low Gain";
+const juce::String HIGH_GAIN = "High Gain";
+const juce::String PEAK_FREQ = "Peak Freq";
+const juce::String PEAK_GAIN = "Peak Gain";
+const juce::String PEAK_QUALITY = "Peak Quality";
+
+using Filter = juce::dsp::IIR::Filter<float>;
+using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+
+enum ChainPositions
+{
+    LOW_CUT_FILTER,
+    PEAK_FILTER,
+    HIGH_CUT_FILTER
+};
+
 //==============================================================================
 /**
 */
@@ -53,14 +72,6 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    inline static const juce::String LOW_CUT = "Low Cut";
-    inline static const juce::String HIGH_CUT = "High Cut";
-    inline static const juce::String LOW_GAIN = "Low Gain";
-    inline static const juce::String HIGH_GAIN = "High Gain";
-    inline static const juce::String PEAK_FREQ = "Peak Freq";
-    inline static const juce::String PEAK_GAIN = "Peak Gain";
-    inline static const juce::String PEAK_QUALITY = "Peak Quality";
-
     using APVTS = juce::AudioProcessorValueTreeState;
     static APVTS::ParameterLayout createParameterLayout();
     APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
@@ -74,17 +85,7 @@ private:
     juce::AudioParameterFloat* peakGain{ nullptr };
     juce::AudioParameterFloat* peakQuality{ nullptr };
 
-    using Filter = juce::dsp::IIR::Filter<float>;
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
     MonoChain leftChain, rightChain;
-
-    enum ChainPositions
-    {
-        LOW_CUT_FILTER,
-        PEAK_FILTER,
-        HIGH_CUT_FILTER
-    };
 
     void updatePeakFilter();
     void updateCutFilters();
