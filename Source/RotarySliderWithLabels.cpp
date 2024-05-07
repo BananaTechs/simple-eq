@@ -68,7 +68,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
 //==============================================================================
 
-RotarySliderWithLabels::RotarySliderWithLabels(juce::RangedAudioParameter& param, const juce::String& unitSuffix) 
+RotarySliderWithLabels::RotarySliderWithLabels(juce::RangedAudioParameter& param, const juce::String& unitSuffix)
     : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
                    juce::Slider::TextEntryBoxPosition::NoTextBox),
     param(&param),
@@ -103,10 +103,11 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
                                       endAngle,
                                       *this);
 
-    g.setColour(Colours::red);
+    // Draws bounding boxes for reference
+    /*g.setColour(Colours::red);
     g.drawRect(getLocalBounds());
     g.setColour(Colours::yellow);
-    g.drawRect(sliderBounds);
+    g.drawRect(sliderBounds);*/
 }
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
@@ -119,7 +120,7 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
     juce::Rectangle<int> sliderBounds;
     sliderBounds.setSize(size, size);
     sliderBounds.setCentre(bounds.getCentreX(), 0);
-    sliderBounds.setY(2);
+    sliderBounds.setY(8);
 
     return sliderBounds;
 }
@@ -131,5 +132,43 @@ int RotarySliderWithLabels::getTextHeight() const
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
-    return juce::String(getValue());
+    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
+    {
+        auto str = choiceParam->getCurrentChoiceName();
+        str << " ";
+        str << suffix;
+        return str;
+    }
+
+    juce::String str;
+    bool addK = false;
+
+    juce::AudioParameterFloat* floatParam;
+    if (!(floatParam = dynamic_cast<juce::AudioParameterFloat*>(param)))
+    {
+        jassertfalse;
+    }
+
+    float val = getValue();
+    if (val >= 1000.f)
+    {
+        val /= 1000.f;
+        addK = true;
+    }
+
+    str = juce::String(val, addK ? 2 : 0);
+
+    if (suffix.isEmpty())
+    {
+        return str;
+    }
+
+    str << " ";
+    if (addK)
+    {
+        str << "k";
+    }
+    str << suffix;
+
+    return str;
 }
