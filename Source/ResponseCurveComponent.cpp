@@ -19,6 +19,8 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p)
         param->addListener(this);
     }
 
+    updateChain();
+
     startTimerHz(60);
 }
 
@@ -105,7 +107,12 @@ void ResponseCurveComponent::timerCallback()
 {
     if (parametersChanged.compareAndSetBool(false, true))
     {
-        audioProcessor.updateMonoChain(monoChain);
+        updateChain();
         repaint();
     }
+}
+
+void ResponseCurveComponent::updateChain()
+{
+    audioProcessor.updateMonoChain(monoChain);
 }

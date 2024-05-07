@@ -30,6 +30,8 @@ public:
     void timerCallback() override;
 
 private:
+    void updateChain();
+
     juce::Atomic<bool> parametersChanged{ false };
 
     MonoChain monoChain;
