@@ -296,7 +296,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
     juce::StringArray sa;
     for (auto choice : gainChoices)
     {
-        sa.add(juce::String(choice, 1));
+        sa.add(juce::String(choice, 0));
     }
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
