@@ -116,7 +116,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
         jassert(pos <= 1.f);
 
         auto angle = jmap(pos, 0.f, 1.f, startAngle, endAngle);
-        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.5f + 1, angle);
+        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.25f + 1, angle);
 
         Rectangle<float> textBounds;
         auto str = labels[i].label;
@@ -145,7 +145,7 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
     juce::Rectangle<int> sliderBounds;
     sliderBounds.setSize(size, size);
     sliderBounds.setCentre(bounds.getCentreX(), 0);
-    sliderBounds.setY(8);
+    sliderBounds.setY(2);
 
     return sliderBounds;
 }
