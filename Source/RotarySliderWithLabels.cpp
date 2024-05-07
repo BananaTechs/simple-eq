@@ -103,6 +103,31 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
                                       endAngle,
                                       *this);
 
+    auto center = sliderBounds.toFloat().getCentre();
+    auto radius = sliderBounds.getWidth() * 0.5f;
+
+    g.setColour(Colours::aquamarine);
+    g.setFont(getTextHeight());
+
+    for (int i = 0; i < labels.size(); i++)
+    {
+        auto pos = labels[i].pos;
+        jassert(pos >= 0.f);
+        jassert(pos <= 1.f);
+
+        auto angle = jmap(pos, 0.f, 1.f, startAngle, endAngle);
+        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.5f + 1, angle);
+
+        Rectangle<float> textBounds;
+        auto str = labels[i].label;
+        auto strWidth = g.getCurrentFont().getStringWidth(str);
+        textBounds.setSize(strWidth, getTextHeight());
+        textBounds.setCentre(c);
+        textBounds.setY(textBounds.getY() + getTextHeight());
+
+        g.drawFittedText(str, textBounds.toNearestInt(), Justification::centred, 1);
+    }
+
     // Draws bounding boxes for reference
     /*g.setColour(Colours::red);
     g.drawRect(getLocalBounds());

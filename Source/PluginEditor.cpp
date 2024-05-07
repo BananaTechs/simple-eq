@@ -34,6 +34,8 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
         addAndMakeVisible(component);
     }
 
+    createLabels();
+
     setSize(400, 500);
 }
 
@@ -75,4 +77,28 @@ void SimpleEQAudioProcessorEditor::resized()
     peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
     peakQualitySlider.setBounds(bounds);
+}
+
+void SimpleEQAudioProcessorEditor::createLabels()
+{
+    peakFreqSlider.labels.add(RotarySliderWithLabels::LabelPos{0.f, "20 Hz"});
+    peakFreqSlider.labels.add(RotarySliderWithLabels::LabelPos{ 1.f, "20 kHz" });
+
+    peakGainSlider.labels.add(RotarySliderWithLabels::LabelPos{ 0.f, "-24 dB" });
+    peakGainSlider.labels.add(RotarySliderWithLabels::LabelPos{ 1.f, "24 dB" });
+
+    peakQualitySlider.labels.add(RotarySliderWithLabels::LabelPos{ 0.f, "0.1" });
+    peakQualitySlider.labels.add(RotarySliderWithLabels::LabelPos{ 1.f, "10" });
+
+    lowCutFreqSlider.labels.add(RotarySliderWithLabels::LabelPos{ 0.f, "20 Hz" });
+    lowCutFreqSlider.labels.add(RotarySliderWithLabels::LabelPos{ 1.f, "20 kHz" });
+
+    highCutFreqSlider.labels.add(RotarySliderWithLabels::LabelPos{ 0.f, "20 Hz" });
+    highCutFreqSlider.labels.add(RotarySliderWithLabels::LabelPos{ 1.f, "20 kHz" });
+
+    lowCutSlopeSlider.labels.add(RotarySliderWithLabels::LabelPos{ 0.f, "12 dB" });
+    lowCutSlopeSlider.labels.add(RotarySliderWithLabels::LabelPos{ 1.f, "48 dB" });
+
+    highCutSlopeSlider.labels.add(RotarySliderWithLabels::LabelPos{ 0.f, "12 dB" });
+    highCutSlopeSlider.labels.add(RotarySliderWithLabels::LabelPos{ 1.f, "48 dB" });
 }

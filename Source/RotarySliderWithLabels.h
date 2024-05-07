@@ -34,6 +34,14 @@ public:
     int getTextHeight() const;
     juce::String getDisplayString() const;
 
+    struct LabelPos
+    {
+        float pos;
+        juce::String label;
+    };
+
+    juce::Array<LabelPos> labels;
+
 private:
     LookAndFeel lnf;
 
