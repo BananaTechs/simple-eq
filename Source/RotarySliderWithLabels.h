@@ -20,7 +20,7 @@ public:
                           float sliderPosProportional,
                           float rotaryStartAngle,
                           float rotaryEndAngle,
-                          juce::Slider&) override { }
+                          juce::Slider&) override;
 };
 
 class RotarySliderWithLabels : public juce::Slider
