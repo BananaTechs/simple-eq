@@ -79,7 +79,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     const double outputMax = getY();
     auto map = [outputMin, outputMax](double input)
         {
-            return jmap(input, -24.0, 24.0, outputMin, outputMax);
+            return jmap(input, -27.0, 27.0, outputMin, outputMax);
         };
 
     responseCurve.startNewSubPath(getX(), map(magnitudes.front()));
@@ -92,7 +92,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     g.setColour(Colours::aquamarine);
     g.drawRoundedRectangle(getLocalBounds().toFloat(), 4.0, 2.0);
 
-    g.setColour(Colours::white);
+    g.setColour(Colours::azure);
     g.strokePath(responseCurve, PathStrokeType(2.0));
 }
 
