@@ -46,6 +46,8 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     g.fillPath(p);
 }
 
+//==============================================================================
+
 RotarySliderWithLabels::RotarySliderWithLabels(juce::RangedAudioParameter& param, const juce::String& unitSuffix) 
     : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
                    juce::Slider::TextEntryBoxPosition::NoTextBox),
@@ -80,11 +82,26 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
                                       startAngle,
                                       endAngle,
                                       *this);
+
+    g.setColour(Colours::red);
+    g.drawRect(getLocalBounds());
+    g.setColour(Colours::yellow);
+    g.drawRect(sliderBounds);
 }
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 {
-    return getLocalBounds();
+    auto bounds = getLocalBounds();
+
+    auto size = juce::jmin(bounds.getWidth(), bounds.getHeight());
+    size -= getTextHeight() * 2;
+
+    juce::Rectangle<int> sliderBounds;
+    sliderBounds.setSize(size, size);
+    sliderBounds.setCentre(bounds.getCentreX(), 0);
+    sliderBounds.setY(2);
+
+    return sliderBounds;
 }
 
 int RotarySliderWithLabels::getTextHeight() const
